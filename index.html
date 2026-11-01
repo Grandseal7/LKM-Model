@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Моделирование и оптимизация процесса приготовления лакокрасочных материалов">
+  <title>Моделирование процесса приготовления ЛКМ</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home">ЛКМ <span>MODEL</span></a>
+    <nav>
+      <a href="#home">Главная</a>
+      <a href="#theory">Теория</a>
+      <a href="#model">Модель</a>
+      <a href="#simulation">Моделирование</a>
+      <a href="#optimization">Оптимизация</a>
+      <a href="#results">Результаты</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">ЛАБОРАТОРНАЯ РАБОТА № 2</p>
+        <h1>Моделирование процесса приготовления лакокрасочных материалов</h1>
+        <p>Интерактивное исследование смешивания смолы и растворителя: расчёт концентрации, сравнение режимов и поиск режима с минимальными условными энергозатратами.</p>
+        <a class="button" href="#simulation">Перейти к моделированию</a>
+      </div>
+      <div class="tank-card" aria-label="Схема процесса смешивания">
+        <div class="input-streams">
+          <span>Смола G₁</span><span>Растворитель G₂</span>
+        </div>
+        <div class="tank">
+          <div class="liquid"></div><div class="shaft"></div><div class="blade"></div>
+        </div>
+        <div class="output-stream">Готовый лакокрасочный материал G</div>
+      </div>
+    </section>
+
+    <section id="theory" class="section">
+      <p class="eyebrow">01 / ТЕОРИЯ</p>
+      <h2>Теоретическая часть</h2>
+      <div class="two-col">
+        <article class="panel">
+          <h3>Описание процесса</h3>
+          <p>Лакокрасочные материалы получают смешиванием смолы, содержащей растворитель, и дополнительного растворителя. Компоненты поступают в смесительный агрегат, где формируется смесь с заданной концентрацией.</p>
+          <p>В модели рассматривается изменение концентрации растворителя во времени. Цель — определить, как быстро концентрация приближается к установившемуся значению и какие параметры процесса влияют на результат.</p>
+        </article>
+        <article class="panel">
+          <h3>Основные этапы</h3>
+          <ol>
+            <li>Задать объём и параметры компонентов.</li>
+            <li>Определить общий расход и установившуюся концентрацию.</li>
+            <li>Рассчитать изменение концентрации во времени.</li>
+            <li>Сравнить режимы смешивания.</li>
+            <li>Выбрать режим, удовлетворяющий ограничению по концентрации.</li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <section id="model" class="section">
+      <p class="eyebrow">02 / МАТЕМАТИЧЕСКАЯ МОДЕЛЬ</p>
+      <h2>Уравнения модели</h2>
+      <div class="equation">T · dC/dt + C = P<sub>i</sub></div>
+      <div class="equation">P<sub>i</sub> = (G₁ · C₁ + G₂ · C₂) / (G₁ + G₂)</div>
+      <div class="equation">T = V / (G₁ + G₂)</div>
+      <div class="equation">C(t) = P<sub>i</sub> + (C₀ − P<sub>i</sub>) · e<sup>−t/T</sup></div>
+      <div class="panel">
+        <h3>Обозначения</h3>
+        <div class="definition-grid">
+          <p><b>C(t)</b> — концентрация растворителя в момент времени t, %.</p>
+          <p><b>C₀</b> — начальная концентрация, %.</p>
+          <p><b>C₁, C₂</b> — концентрация растворителя в смоле и растворителе, %.</p>
+          <p><b>G₁, G₂</b> — расходы компонентов, л/мин.</p>
+          <p><b>V</b> — рабочий объём смесителя, л.</p>
+          <p><b>T</b> — постоянная времени модели, мин.</p>
+          <p><b>Pᵢ</b> — установившаяся концентрация, %.</p>
+          <p><b>t</b> — время смешивания, мин.</p>
+        </div>
+        <p class="note"><b>Важно о скорости мешалки.</b> В исходном дифференциальном уравнении методички скорость вращения напрямую не входит. Для исследования влияния скорости в данном приложении введено дополнительное допущение: эффективная постоянная времени уменьшается пропорционально 300/n, где n — скорость мешалки. Это расширение модели, а не формула, приведённая в методичке.</p>
+      </div>
+    </section>
+
+    <section id="simulation" class="section">
+      <p class="eyebrow">03 / ВЫЧИСЛИТЕЛЬНЫЙ ЭКСПЕРИМЕНТ</p>
+      <h2>Параметры моделирования</h2>
+      <div class="simulation-layout">
+        <form id="modelForm" class="panel form-grid">
+          <label>Объём смесителя V, л
+            <input id="volume" type="number" min="10" max="1000" step="1" value="100" required>
+          </label>
+          <label>Скорость мешалки n, об/мин
+            <input id="speed" type="number" min="100" max="500" step="10" value="300" required>
+          </label>
+          <label>Время смешивания, мин
+            <input id="time" type="number" min="1" max="20" step="0.5" value="10" required>
+          </label>
+          <label>Расход смолы G₁, л/мин
+            <input id="g1" type="number" min="0.1" max="1000" step="0.1" value="6" required>
+          </label>
+          <label>Расход растворителя G₂, л/мин
+            <input id="g2" type="number" min="0.1" max="1000" step="0.1" value="4" required>
+          </label>
+          <label>Концентрация в смоле C₁, %
+            <input id="c1" type="number" min="0" max="100" step="0.1" value="10" required>
+          </label>
+          <label>Начальная концентрация C₀, %
+            <input id="c0" type="number" min="0" max="100" step="0.1" value="10" required>
+          </label>
+          <label>Коэффициент интенсивности k
+            <input id="intensity" type="number" min="0.5" max="2" step="0.1" value="1" required>
+          </label>
+          <label>Нижняя граница Cmin, %
+            <input id="cmin" type="number" min="0" max="100" step="0.1" value="50" required>
+          </label>
+          <label>Верхняя граница Cmax, %
+            <input id="cmax" type="number" min="0" max="100" step="0.1" value="70" required>
+          </label>
+          <div class="form-actions">
+            <button class="button" type="submit">Рассчитать</button>
+            <button class="button button-secondary" type="button" id="resetBtn">Сбросить параметры</button>
+          </div>
+          <p id="errorMessage" class="error" role="alert"></p>
+        </form>
+
+        <div class="panel result-panel">
+          <h3>Текущий результат</h3>
+          <div class="metrics">
+            <div><span>Концентрация C(t)</span><strong id="resultC">—</strong></div>
+            <div><span>Установившаяся Pᵢ</span><strong id="resultPi">—</strong></div>
+            <div><span>Постоянная времени Tэфф</span><strong id="resultT">—</strong></div>
+            <div><span>Условные энергозатраты</span><strong id="resultEnergy">—</strong></div>
+          </div>
+          <p id="resultStatus" class="status">Измени параметры и нажми «Рассчитать».</p>
+          <p class="note small">C₂ в модели принимается равной 100%, как указано в методичке. Условные энергозатраты — сравнительный показатель, а не измерение в кВт·ч.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <p class="eyebrow">04 / ВИЗУАЛИЗАЦИЯ</p>
+      <h2>Графики процесса</h2>
+      <div class="chart-grid">
+        <article class="panel"><h3>Концентрация от времени</h3><canvas id="timeChart"></canvas></article>
+        <article class="panel"><h3>Концентрация от скорости</h3><canvas id="speedChart"></canvas></article>
+      </div>
+    </section>
+
+    <section id="optimization" class="section">
+      <p class="eyebrow">05 / ПОИСК РЕЖИМА</p>
+      <h2>Оптимизация</h2>
+      <div class="panel optimization-panel">
+        <div>
+          <p>Алгоритм перебирает скорости от 100 до 500 об/мин и время от 1 до 20 минут. Подходящим считается режим, при котором концентрация попадает в диапазон Cmin–Cmax. Из подходящих режимов выбирается режим с минимальными условными энергозатратами.</p>
+          <p class="note">Энергетический критерий принят как E = (n / 300)³ · t · k. Это условная инженерная оценка для сравнения режимов, поскольку методичка не задаёт формулу энергопотребления.</p>
+        </div>
+        <button class="button" id="optimizeBtn" type="button">Оптимизировать</button>
+        <div id="optimizationResult" class="optimization-result">Нажми кнопку, чтобы выполнить поиск.</div>
+      </div>
+    </section>
+
+    <section id="results" class="section">
+      <p class="eyebrow">06 / ЭКСПЕРИМЕНТЫ И ВЫВОДЫ</p>
+      <h2>Сравнение пяти режимов</h2>
+      <div class="panel table-wrap">
+        <table>
+          <thead><tr><th>№</th><th>Скорость, об/мин</th><th>Время, мин</th><th>Концентрация, %</th><th>Энергозатраты, усл. ед.</th><th>Соответствие</th></tr></thead>
+          <tbody id="experimentTable"></tbody>
+        </table>
+      </div>
+      <div class="panel conclusion-panel">
+        <h3>Выводы</h3>
+        <p id="conclusion">После расчёта здесь появится краткий анализ влияния параметров.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Лабораторная работа № 2 · Моделирование процесса приготовления ЛКМ</footer>
+</body>
+</html>
